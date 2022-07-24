@@ -1,7 +1,19 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
+
+/**
+ * Represents one implementation of HangmanInterface. In this implementation, the word being
+ * guessed in the game is represented as a String. The wordWithGuesses field represents the
+ * wordBeingGuessed throughout the game as a list of Strings, where each String is a letter. This
+ * list is initialized as a list of underscores to reflect unguessed letters, and the list is then
+ * updated to reflect guesses that are made during the game. The guessed letters are kept track of
+ * in the guessedLetters field, which is an ArrayList of String, where there are no repeated
+ * letters. The user also has a limited number of guesses, which begins at 8 and decreases each time
+ * an incorrect guess is made.
+ */
 public class HangmanImpl implements HangmanInterface {
 
   private String wordBeingGuessed;
@@ -9,32 +21,52 @@ public class HangmanImpl implements HangmanInterface {
   private ArrayList<String> guessedLetters;
   private int remainingGuesses;
 
-  public HangmanImpl(String word) {
+  /**
+   * Constructs a HangmanImpl object given a String representing the word being guessed. The given
+   * String is used to initialize the wordWithGuesses as a list of underscores, where there is one
+   * underscore for each letter in the given word. The guessedLetters is initialized as an empty
+   * ArrayList, and there are 8 remainingGuesses starting off.
+   *
+   * @param word The word being guessed in the game.
+   * @throws IllegalArgumentException Exception thrown if word is null; ie user selected "cancel"
+   *         button instead of entering a word.
+   */
+  public HangmanImpl(String word) throws IllegalArgumentException {
+    if (word == null) {
+      throw new IllegalArgumentException("Word cannot be null");
+    }
     this.wordBeingGuessed = word;
     this.wordWithGuesses = this.initWord(word);
     this.guessedLetters = new ArrayList<>();
     this.remainingGuesses = 8; //TODO: adjust int if necessary
   }
 
+  /**
+   * Initializes the list of String for the wordWithGuesses by going through each character in the
+   * given String. If the character is a space, it will be represented as an empty String in the
+   * list. If the character is anything else, it will be represented as an underscore. The list of
+   * String reflects no guesses being made.
+   *
+   * @param word The word being converted to a list of underscores.
+   * @return The list of String.
+   */
   private String[] initWord(String word) {
-    String[] initList = new String[word.length()];
-    for (int i = 0; i < word.length(); i ++) {
-      if (word.substring(i, i + 1).equals(" ")) {
-        initList[i] = " ";
-      } else {
-        initList[i] = "_";
-      }
-    }
-    return initList;
+    return word.chars().mapToObj(x -> x == ' ' ? " " : "_").toArray(String[]::new);
   }
 
   // TODO: java doc
 
   /**
+   * Updates the state of the game in response to a given String, which represents a letter being
+   * guessed. As long as the game is not yet won or lost, the given String will be used to update
+   * the guessedLetters and wordWithGuesses fields, which is delegated to two helper methods. This
+   * method checks if the game has been won or lost a second time after the updatewordWithGuesses
+   * method has been called to ensure the game has not been won or lost in response to the guess.
+   * The given String must only have a length of 1.
    *
-   * @param letter
-   * @throws IllegalArgumentException
-   * @throws IllegalStateException
+   * @param letter String representation of the letter being guessed.
+   * @throws IllegalArgumentException Exception thrown if String is greater than one character.
+   * @throws IllegalStateException    Exception thrown if game is won or lost.
    */
   public void updateState(String letter) throws IllegalArgumentException, IllegalStateException {
 
@@ -42,7 +74,7 @@ public class HangmanImpl implements HangmanInterface {
       throw new IllegalArgumentException("Letter can only be represented by one character at a time");
     }
 
-    this.checkGameStatus();    //TODO: is this valid to check state before and after?
+    this.checkGameStatus();
 
     this.trackGuessed(letter);
     this.updateWordWithGuesses(letter);
@@ -50,24 +82,12 @@ public class HangmanImpl implements HangmanInterface {
     this.checkGameStatus();
 
 
-    //printing for testing purposes
-    StringBuilder builder1 = new StringBuilder();
-    StringBuilder builder2 = new StringBuilder();
-
-    for (int test = 0; test < this.wordWithGuesses.length; test ++) {
-      builder1.append(this.wordWithGuesses[test]);
-    }
-    for (int test2 = 0; test2 < this.guessedLetters.size(); test2 ++) {
-      builder2.append(this.guessedLetters.get(test2));
-    }
-    System.out.println("Word w guesses: " + builder1 + "\n Guesses remaining: " + this.remainingGuesses
-    + "\n Guessed letters: " + builder2);
-
   }
 
   /**
    * Checks to see if the game is won or lost before any changes to the model are attempted. If the
    * game is either won or lost, and IllegalStateException is thrown.
+   *
    * @throws IllegalStateException Exception thrown if game is won or lost.
    */
   private void checkGameStatus() throws IllegalStateException {
@@ -86,6 +106,7 @@ public class HangmanImpl implements HangmanInterface {
    * the letterGuessed is not found in the wordBeingGuessed, the wordWithGuesses is not updated and
    * instead the remainingGuesses decreases by 1. This method allows for the correct letters to
    * be revealed in wordWithGuesses as letters are provided when the method is called.
+   *
    * @param letterGuessed A string representing the letter being guessed as a letter in the word.
    */
   private void updateWordWithGuesses(String letterGuessed) {
@@ -105,16 +126,18 @@ public class HangmanImpl implements HangmanInterface {
    * contained in the guessedLetters array. If it is not, the letterGuessed is added to the
    * ArrayList. This prevents the same letter from being added multiple times each time it is
    * guessed.
+   *
    * @param letterGuessed A string representing the letter being guessed as a letter in the word.
    */
   private void trackGuessed(String letterGuessed) {
-    if (! (this.guessedLetters.contains(letterGuessed))) {
+    if (!(this.guessedLetters.contains(letterGuessed))) {
       this.guessedLetters.add(letterGuessed);
     }
   }
 
   /**
    * Determines if a game is lost. A game is lost when there are 0 guesses remaining.
+   *
    * @return True if the game is lost, false if not.
    */
   public boolean isLost() {
@@ -124,41 +147,60 @@ public class HangmanImpl implements HangmanInterface {
   /**
    * Determines if a game is won. A game is won when all letters in wordWithGuesses have been
    * revealed.
+   *
    * @return True if the game is won, false if not.
    */
   public boolean isSolved() {
-    boolean solved = true;
-    for (int i = 0; i < this.wordWithGuesses.length; i ++) {
-      if (this.wordWithGuesses[i].equals("_")) {
-        solved = false;
-      }
-    }
-    return solved;
+    return !Arrays.asList(this.wordWithGuesses).contains("_");
   }
 
+  /**
+   * Method for formatting the wordWithGuesses as a String. In this implementation, this method is
+   * used to provide this information to the view for display purposes.
+   *
+   * @return String of the wordWithGuesses.
+   */
   public String wordGuessedSoFar() {
     StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < this.wordWithGuesses.length; i ++) {
-      builder.append(this.wordWithGuesses[i] + " ");
+    for (String wordWithGuess : this.wordWithGuesses) {
+      builder.append(wordWithGuess).append(" ");
     }
     return builder.toString();
   }
 
+  /**
+   * Getter for the remaining guesses.
+   *
+   * @return The number of remaining guesses for this state of the game.
+   */
   @Override
   public int getRemainingGuesses() {
     return this.remainingGuesses;
   }
 
+  /**
+   * Resets the state of the game, where the fields are initialized for a new game to be played. If
+   * the newWord given is null (ie the user opted to cancel the new game), the program ends.
+   *
+   * @param newWord String representing a new word to be guessed.
+   */
   @Override
   public void reset(String newWord) {
-
+    if (newWord == null) {
+      System.exit(0);
+    }
     this.wordBeingGuessed = newWord;
     this.wordWithGuesses = this.initWord(newWord);
     this.guessedLetters = new ArrayList<>();
-    this.remainingGuesses = 8;
+    this.remainingGuesses = 9;
 
   }
 
+  /**
+   * Getter for the guessedLetters.
+   *
+   * @return The ArrayList<String> of guessedLetters of this state of the game.
+   */
   @Override
   public ArrayList<String> getGuessedLetters() {
     return this.guessedLetters;
@@ -166,21 +208,3 @@ public class HangmanImpl implements HangmanInterface {
 
 }
 
-
-/*
-Model
-- user should be able to set word for each round of the game
-  - this will be a String field in the model class
-- user will guess letters one character at a time
-  - this will be represented as an ArrayList<Character>
-- user will have a limited number of guesses
-  - represented as an int
-
-View
-- panel for displaying the hangman being drawn
-- textbox for user input
-- restart game button
-- quit game button
-- error message will pop up if...
-  - user enters a number
- */

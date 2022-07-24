@@ -2,17 +2,32 @@ package view.commands;
 
 import java.awt.*;
 
+/**
+ * Represents the command object for drawing the eyes of a hangman.
+ */
 public class EyeCommand implements Command {
 
-  private int x;
-  private int y;
-  private int width;
-  private int height;
-  private int x2;
-  private int y2;
-  private int width2;
-  private int height2;
+  private final int x;
+  private final int y;
+  private final int width;
+  private final int height;
+  private final int x2;
+  private final int y2;
+  private final int width2;
+  private final int height2;
 
+  /**
+   * Constructs an EyeCommand object given 8 parameters, which are needed for drawing the two ovals.
+   *
+   * @param int1 x value of left oval.
+   * @param int2 y value of left oval.
+   * @param int3 width of left oval.
+   * @param int4 height of left oval.
+   * @param int5 x value of right oval.
+   * @param int6 y value of right oval.
+   * @param int7 width of right oval.
+   * @param int8 height of right oval.
+   */
   public EyeCommand(int int1, int int2, int int3, int int4, int int5, int int6, int int7, int int8) {
     this.x = int1;
     this.y = int2;
@@ -24,6 +39,11 @@ public class EyeCommand implements Command {
     this.height2 = int8;
   }
 
+  /**
+   * Draws the two ovals.
+   *
+   * @param g The graphics object needed to draw.
+   */
   @Override
   public void execute(Graphics g) {
     g.drawOval(this.x, this.y, this.width, this.height);
